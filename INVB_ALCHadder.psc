@@ -1,4 +1,3 @@
-;This adds a item to the caster with a selected amount
 Scriptname INVB_ALCHadder extends activemagiceffect
 
 form Property Potion_item Auto Const

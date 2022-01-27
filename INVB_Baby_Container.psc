@@ -21,14 +21,12 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 			(akNewContainer as Actor).removeitem(Armor_Baby, 1, true)
 		Endif
 	elseif !akNewContainer
-		
-		;Delete()
-		
-	else
-		if akNewContainer.GetItemCount(Misc_Baby) == 0
+		Utility.Wait(0.5)
+		Delete()
+	elseif akNewContainer.GetItemCount(Misc_Baby) == 0
 			Utility.Wait(0.5)
 			akNewContainer.removeitem(Armor_Baby, 1, true)
-		Endif
+			Delete()
 	Endif
 EndEvent
 
@@ -39,4 +37,3 @@ Event OnUnEquipped(Actor akActor)
 		akActor.removeitem(Armor_Baby, 1, true)
 	Endif
 EndEvent
-

@@ -27,7 +27,6 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 				(akNewContainer as Actor).equipitem(Armor_Baby, false, true)
 			EndIf	
 		Endif
-		
 	else
 		Utility.Wait(0.5)
 		If akOldContainer as Actor

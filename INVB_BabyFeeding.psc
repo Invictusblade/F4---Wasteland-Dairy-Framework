@@ -192,6 +192,24 @@ Function ConfirmPlayer(Actor akActor)
 EndFunction
 
 
+Function WaitGameTime_Cycle(Actor akActor)
+
+	Utility.WaitGameTime(GetUpdateTime())
+
+	If INVB_Global_BabyHardcore_Milk.GetValue() == 0
+		Do_Feeding_Cycle_Milk(Game.GetPlayer())
+	elseIf INVB_Global_BabyHardcore_Milk.GetValue() == 1 && int_MilkType == 0
+		Do_Feeding_Cycle_Milk(Game.GetPlayer())
+	elseIf INVB_Global_BabyHardcore_Milk.GetValue() == 1 && int_MilkType >= 1
+		Do_Feeding_Cycle_Special(Game.GetPlayer())
+	endIf
+
+	if Equipped
+		WaitGameTime_Cycle(Game.GetPlayer())
+	endIf	
+EndFunction
+
+
 Event OnEquipped(Actor akActor)
 	Equipped = True
 	
@@ -199,8 +217,10 @@ Event OnEquipped(Actor akActor)
 		Hungerlevel = 0
 		Utility.Wait(5.0)
 
-		if INVB_Global_BabyHardcore_Boolean.GetValue() == 1.0
+		if INVB_Global_BabyHardcore_Boolean.GetValue() == 1
 			StartTimerGameTime(GetUpdateTime())
+		elseif INVB_Global_BabyHardcore_Boolean.GetValue() == 2
+			WaitGameTime_Cycle(Game.GetPlayer())
 		endIf
 		
 	endIf		
@@ -216,6 +236,12 @@ Float Function GetUpdateTime()
 	EndIf
 	
 EndFunction
+
+
+
+
+
+
 
 Event OnTimerGameTime(int aiTID)
 ;	Debug.Trace("Do_Feeding_Cycle Trigger")

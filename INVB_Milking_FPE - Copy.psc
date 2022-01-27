@@ -1,6 +1,5 @@
 Scriptname INVB_Milking_FPE extends ObjectReference
 
-Actor Property PlayerRef Auto Const
 Actor target
 Armor Property pArmor_Milker Auto Const Mandatory
 Armor Property pArmor_Milker_infected Auto Const Mandatory
@@ -38,6 +37,7 @@ GlobalVariable property INVB_Global_Milking_Damage Auto Const Mandatory
 GlobalVariable property INVB_Global_Milking_Resources Auto Const Mandatory
 GlobalVariable property INVB_Global_Milking_Time Auto Const Mandatory
 GlobalVariable property INVB_Global_Milking_Time_Type Auto Const Mandatory
+GlobalVariable property INVB_Global_Milking_Time_modifier Auto Const Mandatory
 SPELL Property SP_MilkExtract_ActionPoints Auto
 SPELL Property SP_MilkExtract_SPECIAL Auto
 Keyword Property kw_infect Auto
@@ -68,14 +68,6 @@ int int_milkcount
 
 GlobalVariable property INVB_Global_Gender_Roles Auto Const Mandatory
 bool Property Milk Auto Const
-
-GlobalVariable property INVB_Global_Spend_Toggle Auto Const Mandatory
-Potion Property Aid_Spend Auto Const
-Perk Property Perk_Spend Auto
-Perk Property Perk_Active Auto
-
-GlobalVariable property INVB_Global_NPC_Workshop Auto Const Mandatory
-GlobalVariable property INVB_Global_Workshop_Gifter Auto Const Mandatory
 
 Function Try_for_Virus(Actor akActor)
 	int random_LList_infect = Utility.RandomInt(1, 100)
@@ -198,7 +190,7 @@ EndFunction
 
 Function Do_Milk_Morphs(Actor akActor)
 	;Debug.Trace("Do_Milk_Morphs")
-if INVB_Global_BodyType_Enable.GetValue() > 1
+if INVB_Global_BodyType_Enable.GetValue() > 1 && akActor == Game.GetPlayer()
 		string M_string_01
 		string string_02
 		string string_03
@@ -341,45 +333,6 @@ Function Get_Milk(Actor akActor)
 	;Debug.Trace("Getting Milk")
 	Float RadLevel = akActor.GetValue(Rads) as float
 	
-	If akActor != PlayerRef && INVB_Global_Workshop_Gifter.GetValue() == 1
-		If akActor.GetDistance(PlayerRef) > 1024.000
-			If akActor.wornHasKeyword(kw_MilkOne) && (RadLevel > INVB_Global_Rads.GetValue())
-				PlayerRef.additem(Milk_Rads, 1, true)
-			ElseIf akActor.wornHasKeyword(kw_MilkTwo) && (RadLevel > INVB_Global_Rads.GetValue())
-				PlayerRef.additem(Milk_Rads, 2, true)
-			elseIf akActor.wornHasKeyword(kw_MilkOne) && akActor.HasPerk(Perk_Virus)
-				PlayerRef.additem(Milk_Breast, (1 * INVB_Global_Milking_Virus_Mod.getvalue() as int), true)
-			ElseIf akActor.wornHasKeyword(kw_MilkTwo) && akActor.HasPerk(Perk_Virus)
-				PlayerRef.additem(Milk_Breast, (2 * INVB_Global_Milking_Virus_Mod.getvalue() as int), true)
-			elseIf akActor.wornHasKeyword(kw_MilkOne) && akActor.HasPerk(Perk_Virus_V81)
-				PlayerRef.additem(Milk_Breast, (1 * INVB_Global_Milking_Virus_Mod.getvalue() as int), true)
-			ElseIf akActor.wornHasKeyword(kw_MilkTwo) && akActor.HasPerk(Perk_Virus_V81)
-				PlayerRef.additem(Milk_Breast, (2 * INVB_Global_Milking_Virus_Mod.getvalue() as int), true)
-			ElseIf akActor.wornHasKeyword(kw_MilkOne)
-				PlayerRef.additem(Milk_Breast, 1, true)
-			ElseIf akActor.wornHasKeyword(kw_MilkTwo)
-				PlayerRef.additem(Milk_Breast, 2, true)	
-			Endif
-		else
-			If akActor.wornHasKeyword(kw_MilkOne) && (RadLevel > INVB_Global_Rads.GetValue())
-				akActor.additem(Milk_Rads, 1, true)
-			ElseIf akActor.wornHasKeyword(kw_MilkTwo) && (RadLevel > INVB_Global_Rads.GetValue())
-				akActor.additem(Milk_Rads, 2, true)
-			elseIf akActor.wornHasKeyword(kw_MilkOne) && akActor.HasPerk(Perk_Virus)
-				akActor.additem(Milk_Breast, (1 * INVB_Global_Milking_Virus_Mod.getvalue() as int), true)
-			ElseIf akActor.wornHasKeyword(kw_MilkTwo) && akActor.HasPerk(Perk_Virus)
-				akActor.additem(Milk_Breast, (2 * INVB_Global_Milking_Virus_Mod.getvalue() as int), true)
-			elseIf akActor.wornHasKeyword(kw_MilkOne) && akActor.HasPerk(Perk_Virus_V81)
-				akActor.additem(Milk_Breast, (1 * INVB_Global_Milking_Virus_Mod.getvalue() as int), true)
-			ElseIf akActor.wornHasKeyword(kw_MilkTwo) && akActor.HasPerk(Perk_Virus_V81)
-				akActor.additem(Milk_Breast, (2 * INVB_Global_Milking_Virus_Mod.getvalue() as int), true)
-			ElseIf akActor.wornHasKeyword(kw_MilkOne)
-				akActor.additem(Milk_Breast, 1, true)
-			ElseIf akActor.wornHasKeyword(kw_MilkTwo)
-				akActor.additem(Milk_Breast, 2, true)	
-			Endif
-		endif
-	else
 		If akActor.wornHasKeyword(kw_MilkOne) && (RadLevel > INVB_Global_Rads.GetValue())
 			akActor.additem(Milk_Rads, 1, true)
 		ElseIf akActor.wornHasKeyword(kw_MilkTwo) && (RadLevel > INVB_Global_Rads.GetValue())
@@ -397,44 +350,12 @@ Function Get_Milk(Actor akActor)
 		ElseIf akActor.wornHasKeyword(kw_MilkTwo)
 			akActor.additem(Milk_Breast, 2, true)	
 		Endif
-	endif
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-		
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	if (akActor == PlayerRef) && (INVB_Global_Milking_Damage.GetValue() == 1)
+	if (akActor == Game.GetPlayer()) && (INVB_Global_Milking_Damage.GetValue() == 1)
 		SP_MilkExtract_ActionPoints.Cast(akActor, akActor)
 	elseIf (INVB_Global_Milking_Damage.GetValue() == 2)
 		SP_MilkExtract_ActionPoints.Cast(akActor, akActor)
-	elseIf (akActor == PlayerRef) && (INVB_Global_Milking_Damage.GetValue() == 3)
+	elseIf (akActor == Game.GetPlayer()) && (INVB_Global_Milking_Damage.GetValue() == 3)
 		SP_MilkExtract_SPECIAL.Cast(akActor, akActor)
 	elseIf (INVB_Global_Milking_Damage.GetValue() == 4)
 		SP_MilkExtract_SPECIAL.Cast(akActor, akActor)
@@ -605,7 +526,7 @@ Function Do_Milk_Repair(Actor akActor)
 		Endif
 		
 		
-		if INVB_Global_BodyType_Enable.GetValue() > 1
+		if INVB_Global_BodyType_Enable.GetValue() > 1 && akActor == Game.GetPlayer()
 			BodyGen.SetMorph(akActor, true, M_string_01, kw_Morph_Milk, 0)		
 			BodyGen.SetMorph(akActor, true, string_02, kw_Morph_Milk, 0)
 			BodyGen.SetMorph(akActor, true, string_03, kw_Morph_Milk, 0)
@@ -617,12 +538,12 @@ Function Do_Milk_Repair(Actor akActor)
 EndFunction
 
 Function Action(Actor akActor)
-	If akActor.wornHasKeyword(kw_HC) && Equipped && INVB_Global_Milking_Resources.GetValue() == 0
-		Do_Milk_Resources(akActor)
+	If Game.GetPlayer().wornHasKeyword(kw_HC) && Equipped && INVB_Global_Milking_Resources.GetValue() == 0
+		Do_Milk_Resources(Game.GetPlayer())
 	endIf
 
 	if NotInfectable == False
-		Try_for_Virus(akActor)
+		Try_for_Virus(Game.GetPlayer())
 	endIf
 	
 	while Equipped
@@ -632,7 +553,12 @@ Function Action(Actor akActor)
 			endif
 		else
 			If Equipped
-				Utility.WaitGameTime(GetUpdateTime())
+				if bool_Slow == true
+					Utility.Wait(INVB_Global_Milking_Time_modifier.getvalue() * 2)
+				else
+					Utility.Wait(INVB_Global_Milking_Time_modifier.getvalue())
+				endIf
+				
 				WaitandMilk()
 			endif
 		endIf
@@ -641,74 +567,57 @@ Function Action(Actor akActor)
 EndFunction
 
 Event OnEquipped(Actor akActor)
-	target = akActor
-	if akActor == PlayerRef || INVB_Global_NPC_Workshop.GetValue() == 0
+	if akActor == Game.GetPlayer()
 		int_milkcount = 0
 		Equipped = True
 		
-		if INVB_Global_Spend_Toggle.GetValue() == 1	
-			akActor.addperk(Perk_Active)
-		endIf
-		
-		if (!akActor.HasPerk(Perk_Spend) && INVB_Global_Spend_Toggle.GetValue() == 1) || INVB_Global_Spend_Toggle.GetValue() == 0
-			if Milk == true
-				if INVB_Global_Gender_Roles.GetValue() == 0 ;Enforced
-					if akActor.GetLeveledActorBase().GetSex() == 1 && akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() <= 1
-						Action(akActor)
-					elseIf akActor.GetLeveledActorBase().GetSex() == 1 && !akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() <= 1
-						if INVB_Global_Notes.GetValue() == 1
-							Debug.notification(akActor.GetLeveledActorBase().GetName() +" is not Lactating")
-						endif
-						akActor.unequipitem(pArmor_Milker,true,true)
-					elseif akActor.GetLeveledActorBase().GetSex() == 1 && INVB_Global_Lactation.GetValue() == 2
-						Action(akActor)
-					elseif akActor.GetLeveledActorBase().GetSex() == 0
-						if INVB_Global_Notes.GetValue() == 1
-							Debug.notification(akActor.GetLeveledActorBase().GetName() +" is a Male")
-						endif
-						akActor.unequipitem(pArmor_Milker,true,true)
-					endIf
-					
-				elseif INVB_Global_Gender_Roles.GetValue() == 1 ;Disabled
-					if akActor.GetLeveledActorBase().GetSex() == 1 && akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() <= 1
-						Action(akActor)
-					elseIf akActor.GetLeveledActorBase().GetSex() == 1 && !akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() <= 1
-						if INVB_Global_Notes.GetValue() == 1
-							Debug.notification(akActor.GetLeveledActorBase().GetName() +" is not Lactating")
-						endif
-						akActor.unequipitem(pArmor_Milker,true,true)
-					elseif akActor.GetLeveledActorBase().GetSex() == 1 && INVB_Global_Lactation.GetValue() == 2
-						Action(akActor)
-					elseif akActor.GetLeveledActorBase().GetSex() == 0
-						Action(akActor)
-					endIf
-				endIf
-			else 		
-				if INVB_Global_Gender_Roles.GetValue() == 0 ;Enforced
-					if akActor.GetLeveledActorBase().GetSex() == 0
-						Action(akActor)
-					elseif akActor.GetLeveledActorBase().GetSex() == 1
-						if INVB_Global_Notes.GetValue() == 1
-							Debug.notification(akActor.GetLeveledActorBase().GetName() +" is a Female")
-						endif
-						akActor.unequipitem(pArmor_Milker,true,true)
-					endIf
-					
-				elseif INVB_Global_Gender_Roles.GetValue() == 1 ;Disabled
+		if Milk == true
+			if INVB_Global_Gender_Roles.GetValue() == 0 ;Enforced
+				if akActor.GetLeveledActorBase().GetSex() == 1 && akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() <= 1
 					Action(akActor)
-				endIf	
+				elseIf akActor.GetLeveledActorBase().GetSex() == 1 && !akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() <= 1
+					if INVB_Global_Notes.GetValue() == 1
+						Debug.notification(akActor.GetLeveledActorBase().GetName() +" is not Lactating")
+					endif
+					akActor.unequipitem(pArmor_Milker,true,true)
+				elseif akActor.GetLeveledActorBase().GetSex() == 1 && INVB_Global_Lactation.GetValue() == 2
+					Action(akActor)
+				elseif akActor.GetLeveledActorBase().GetSex() == 0
+					if INVB_Global_Notes.GetValue() == 1
+						Debug.notification(akActor.GetLeveledActorBase().GetName() +" is a Male")
+					endif
+					akActor.unequipitem(pArmor_Milker,true,true)
+				endIf
+				
+			elseif INVB_Global_Gender_Roles.GetValue() == 1 ;Disabled
+				if akActor.GetLeveledActorBase().GetSex() == 1 && akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() <= 1
+					Action(akActor)
+				elseIf akActor.GetLeveledActorBase().GetSex() == 1 && !akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() <= 1
+					if INVB_Global_Notes.GetValue() == 1
+						Debug.notification(akActor.GetLeveledActorBase().GetName() +" is not Lactating")
+					endif
+					akActor.unequipitem(pArmor_Milker,true,true)
+				elseif akActor.GetLeveledActorBase().GetSex() == 1 && INVB_Global_Lactation.GetValue() == 2
+					Action(akActor)
+				elseif akActor.GetLeveledActorBase().GetSex() == 0
+					Action(akActor)
+				endIf
 			endIf
-		else
-			if INVB_Global_Notes.GetValue() == 1
-				Debug.notification(akActor.GetLeveledActorBase().GetName() +" is not producing enough")
-			endif
-			akActor.unequipitem(pArmor_Milker,true,true)
+		else 		
+			if INVB_Global_Gender_Roles.GetValue() == 0 ;Enforced
+				if akActor.GetLeveledActorBase().GetSex() == 0
+					Action(akActor)
+				elseif akActor.GetLeveledActorBase().GetSex() == 1
+					if INVB_Global_Notes.GetValue() == 1
+						Debug.notification(akActor.GetLeveledActorBase().GetName() +" is a Female")
+					endif
+					akActor.unequipitem(pArmor_Milker,true,true)
+				endIf
+				
+			elseif INVB_Global_Gender_Roles.GetValue() == 1 ;Disabled
+				Action(akActor)
+			endIf	
 		endIf
-		
-		
-		
-		
-		
 	endIf
 EndEvent
 
@@ -727,50 +636,50 @@ Float Function GetUpdateTime()
 EndFunction
 
 Function WaitandMilk()
-	If target.wornHasKeyword(kw_Repair)
-		Do_Milk_Repair(target)
-		target.unequipitem(pArmor_Milker, true, true)
+	If Game.GetPlayer().wornHasKeyword(kw_Repair)
+		Do_Milk_Repair(Game.GetPlayer())
+		Game.GetPlayer().unequipitem(pArmor_Milker, true, true)
 	Else
-		Do_Milk_Morphs(target)
-		Get_Milk(target)
+		Do_Milk_Morphs(Game.GetPlayer())
+		Get_Milk(Game.GetPlayer())
 	endif
 	
 	int_milkcount += 1
 	
 	if int_milkcount < INVB_Global_Milking_Amount_Max.getvalue() && Equipped
-		If target.wornHasKeyword(kw_HC) && Equipped && INVB_Global_Milking_Resources.GetValue() == 0
-			Do_Milk_Resources(target)
+		If Game.GetPlayer().wornHasKeyword(kw_HC) && Equipped && INVB_Global_Milking_Resources.GetValue() == 0
+			Do_Milk_Resources(Game.GetPlayer())
 		endIf
 	elseif int_milkcount >= INVB_Global_Milking_Amount_Max.getvalue() && Equipped
-		target.unequipitem(pArmor_Milker, true, true)
+		Game.GetPlayer().unequipitem(pArmor_Milker, true, true)
 		if INVB_Global_Notes.GetValue() == 1
-			debug.notification(target.GetLeveledActorBase().GetName() +" has been Milked Out")	
+			debug.notification(Game.GetPlayer().GetLeveledActorBase().GetName() +" has been Milked Out")	
 		endif
 	endIf
 EndFunction
 
 
 Event OnTimerGameTime(int aiTID)
-	If target.wornHasKeyword(kw_Repair)
-		Do_Milk_Repair(target)
-		target.unequipitem(pArmor_Milker, true, true)
+	If Game.GetPlayer().wornHasKeyword(kw_Repair)
+		Do_Milk_Repair(Game.GetPlayer())
+		Game.GetPlayer().unequipitem(pArmor_Milker, true, true)
 	Else
 		
-		Do_Milk_Morphs(target)
-		Get_Milk(target)
+		Do_Milk_Morphs(Game.GetPlayer())
+		Get_Milk(Game.GetPlayer())
 	endif
 	
 	int_milkcount += 1
 	
 	if int_milkcount < INVB_Global_Milking_Amount_Max.getvalue() && Equipped
-		If target.wornHasKeyword(kw_HC) && Equipped && INVB_Global_Milking_Resources.GetValue() == 0
-			Do_Milk_Resources(target)
+		If Game.GetPlayer().wornHasKeyword(kw_HC) && Equipped && INVB_Global_Milking_Resources.GetValue() == 0
+			Do_Milk_Resources(Game.GetPlayer())
 		endIf
 		StartTimerGameTime(GetUpdateTime())
 	elseif int_milkcount >= INVB_Global_Milking_Amount_Max.getvalue() && Equipped
-		target.unequipitem(pArmor_Milker, true, true)
+		Game.GetPlayer().unequipitem(pArmor_Milker, true, true)
 		if INVB_Global_Notes.GetValue() == 1
-			debug.notification(target.GetLeveledActorBase().GetName() +" has been Milked Out")	
+			debug.notification(Game.GetPlayer().GetLeveledActorBase().GetName() +" has been Milked Out")	
 		endif
 	endIf	
 EndEvent
@@ -778,22 +687,12 @@ EndEvent
 Event OnUnequipped(Actor akActor)
     Equipped = False
 	Float RadLevel = akActor.GetValue(Rads) as float
-		
-	if akActor.HasPerk(Perk_Active)	
-		akActor.removeperk(Perk_Active)
-	endIf
 	
-	if int_milkcount >= 1
-		if INVB_Global_Spend_Toggle.GetValue() == 1	
-			akActor.equipitem(Aid_Spend, false, true)
-		endIf
-		
-		if INVB_Global_Overlay_Boolean.GetValue() == 1
-			If RadLevel > INVB_Global_Rads.GetValue()
-				SP_MilkOverlay_Green.Cast(akActor, akActor)
-			else
-				SP_MilkOverlay.Cast(akActor, akActor)
-			endIf	
-		endIf
-	endIf	
+	if INVB_Global_Overlay_Boolean.GetValue() == 1 && int_milkcount > 0
+		If RadLevel > INVB_Global_Rads.GetValue()
+			SP_MilkOverlay_Green.Cast(akActor, akActor)
+		else
+			SP_MilkOverlay.Cast(akActor, akActor)
+		endIf	
+	endIf
 EndEvent

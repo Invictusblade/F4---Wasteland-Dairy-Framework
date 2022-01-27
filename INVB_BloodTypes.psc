@@ -1,6 +1,7 @@
 Scriptname INVB_BloodTypes extends ObjectReference
 
 Actor target
+Actor Property PlayerRef Auto Const
 Armor Property pArmor_Blood Auto Const Mandatory
 Keyword Property kw_HC Auto
 Keyword Property kw_Repeat Auto
@@ -25,7 +26,6 @@ GlobalVariable property INVB_Global_Blood_Damage Auto Const Mandatory
 GlobalVariable property INVB_Global_Blood_Resources Auto Const Mandatory
 GlobalVariable property INVB_Global_Blood_Time Auto Mandatory
 GlobalVariable property INVB_Global_Blood_Time_Type Auto Const Mandatory
-GlobalVariable property INVB_Global_Blood_Time_modifier Auto Const Mandatory
 SPELL Property SP_BloodExtract_DamagePlayer Auto
 SPELL Property SP_BloodExtract_DamagePlayer_Kill Auto
 SPELL Property SP_BloodExtract_SPECIAL Auto
@@ -41,6 +41,14 @@ Bool Equipped = False
 Bool FirstTime_start = true
 Bool FirstTime_end = true
 int int_Bloodcount
+
+GlobalVariable property INVB_Global_Spend_Toggle Auto Const Mandatory
+Perk Property Perk_Active Auto
+Perk Property Perk_Spend Auto
+Potion Property Aid_Spend Auto Const
+
+GlobalVariable property INVB_Global_NPC_Workshop_Blood Auto Const Mandatory
+GlobalVariable property INVB_Global_Workshop_Gifter Auto Const Mandatory
 
 Function Do_Blood_Resources(Actor akActor)
 	if (akActor.GetItemCount(Blood_Empty_Clean) >= 1)
@@ -84,40 +92,100 @@ Function Get_Blood(Actor akActor)
 	Float RadLevel = akActor.GetValue(Rads) as float
 	
 	If Equipped
-		If RadLevel > INVB_Global_Rads_Blood.GetValue()
-			akActor.additem(Milk_Rads, 1, true)
-		elseIf akActor.HasPerk(Perk_TypeO)
-			akActor.additem(Blood_TypeO, 1, true)
-		elseIf akActor.HasPerk(Perk_TypeA)
-			akActor.additem(Blood_TypeA, 1, true)
-		elseIf akActor.HasPerk(Perk_TypeB)
-			akActor.additem(Blood_TypeB, 1, true)	
-		elseIf akActor.HasPerk(Perk_TypeAB)
-			akActor.additem(Blood_TypeAB, 1, true)
+		If akActor != PlayerRef && INVB_Global_Workshop_Gifter.GetValue() == 1
+			If akActor.GetDistance(PlayerRef) > 1024.000
+				If RadLevel > INVB_Global_Rads_Blood.GetValue()
+					PlayerRef.additem(Milk_Rads, 1, true)
+				elseIf akActor.HasPerk(Perk_TypeO)
+					PlayerRef.additem(Blood_TypeO, 1, true)
+				elseIf akActor.HasPerk(Perk_TypeA)
+					PlayerRef.additem(Blood_TypeA, 1, true)
+				elseIf akActor.HasPerk(Perk_TypeB)
+					PlayerRef.additem(Blood_TypeB, 1, true)	
+				elseIf akActor.HasPerk(Perk_TypeAB)
+					PlayerRef.additem(Blood_TypeAB, 1, true)
+				else
+					int randomBlood = Utility.RandomInt(1, 100)
+				
+					If randomBlood >= 90
+						akActor.AddPerk(Perk_TypeAB)
+						PlayerRef.additem(Blood_TypeAB, 1, true)	
+					elseIf randomBlood >= 75
+						akActor.AddPerk(Perk_TypeB)
+						PlayerRef.additem(Blood_TypeB, 1, true)			
+					elseIf randomBlood >= 50
+						akActor.AddPerk(Perk_TypeA)
+						PlayerRef.additem(Blood_TypeA, 1, true)
+					elseIf randomBlood <= 49
+						akActor.AddPerk(Perk_TypeO)
+						PlayerRef.additem(Blood_TypeO, 1, true)
+					Endif
+				Endif	
+			else
+				If RadLevel > INVB_Global_Rads_Blood.GetValue()
+					akActor.additem(Milk_Rads, 1, true)
+				elseIf akActor.HasPerk(Perk_TypeO)
+					akActor.additem(Blood_TypeO, 1, true)
+				elseIf akActor.HasPerk(Perk_TypeA)
+					akActor.additem(Blood_TypeA, 1, true)
+				elseIf akActor.HasPerk(Perk_TypeB)
+					akActor.additem(Blood_TypeB, 1, true)	
+				elseIf akActor.HasPerk(Perk_TypeAB)
+					akActor.additem(Blood_TypeAB, 1, true)
+				else
+					int randomBlood = Utility.RandomInt(1, 100)
+				
+					If randomBlood >= 90
+						akActor.AddPerk(Perk_TypeAB)
+						akActor.additem(Blood_TypeAB, 1, true)	
+					elseIf randomBlood >= 75
+						akActor.AddPerk(Perk_TypeB)
+						akActor.additem(Blood_TypeB, 1, true)			
+					elseIf randomBlood >= 50
+						akActor.AddPerk(Perk_TypeA)
+						akActor.additem(Blood_TypeA, 1, true)
+					elseIf randomBlood <= 49
+						akActor.AddPerk(Perk_TypeO)
+						akActor.additem(Blood_TypeO, 1, true)
+					Endif
+				Endif
+			endif
 		else
-			int randomBlood = Utility.RandomInt(1, 100)
-		
-			If randomBlood >= 90
-				akActor.AddPerk(Perk_TypeAB)
-				akActor.additem(Blood_TypeAB, 1, true)	
-			elseIf randomBlood >= 75
-				akActor.AddPerk(Perk_TypeB)
-				akActor.additem(Blood_TypeB, 1, true)			
-			elseIf randomBlood >= 50
-				akActor.AddPerk(Perk_TypeA)
-				akActor.additem(Blood_TypeA, 1, true)
-			elseIf randomBlood <= 49
-				akActor.AddPerk(Perk_TypeO)
+			If RadLevel > INVB_Global_Rads_Blood.GetValue()
+				akActor.additem(Milk_Rads, 1, true)
+			elseIf akActor.HasPerk(Perk_TypeO)
 				akActor.additem(Blood_TypeO, 1, true)
+			elseIf akActor.HasPerk(Perk_TypeA)
+				akActor.additem(Blood_TypeA, 1, true)
+			elseIf akActor.HasPerk(Perk_TypeB)
+				akActor.additem(Blood_TypeB, 1, true)	
+			elseIf akActor.HasPerk(Perk_TypeAB)
+				akActor.additem(Blood_TypeAB, 1, true)
+			else
+				int randomBlood = Utility.RandomInt(1, 100)
+			
+				If randomBlood >= 90
+					akActor.AddPerk(Perk_TypeAB)
+					akActor.additem(Blood_TypeAB, 1, true)	
+				elseIf randomBlood >= 75
+					akActor.AddPerk(Perk_TypeB)
+					akActor.additem(Blood_TypeB, 1, true)			
+				elseIf randomBlood >= 50
+					akActor.AddPerk(Perk_TypeA)
+					akActor.additem(Blood_TypeA, 1, true)
+				elseIf randomBlood <= 49
+					akActor.AddPerk(Perk_TypeO)
+					akActor.additem(Blood_TypeO, 1, true)
+				Endif
 			Endif
-		Endif
+		Endif	
 	endif
 	If Equipped	
-		if (akActor == Game.GetPlayer()) && (INVB_Global_Blood_Damage.GetValue() == 1)
+		if (akActor == PlayerRef) && (INVB_Global_Blood_Damage.GetValue() == 1)
 			SP_BloodExtract_DamagePlayer.Cast(akActor, akActor)
 		elseIf (INVB_Global_Blood_Damage.GetValue() == 2)
 			SP_BloodExtract_DamagePlayer.Cast(akActor, akActor)
-		elseIf (akActor == Game.GetPlayer()) && (INVB_Global_Blood_Damage.GetValue() == 3)
+		elseIf (akActor == PlayerRef) && (INVB_Global_Blood_Damage.GetValue() == 3)
 			SP_BloodExtract_DamagePlayer_Kill.Cast(akActor, akActor)
 		elseIf (INVB_Global_Blood_Damage.GetValue() == 4)
 			SP_BloodExtract_DamagePlayer_Kill.Cast(akActor, akActor)
@@ -157,25 +225,35 @@ EndFunction
 Event OnEquipped(Actor akActor)
 	int_Bloodcount = 0
 	Equipped = True
+	target = akActor
 	
-	If Game.GetPlayer().wornHasKeyword(kw_HC) && Equipped && INVB_Global_Blood_Resources.GetValue() == 0
-		Do_Blood_Resources(Game.GetPlayer())
+	if INVB_Global_Spend_Toggle.GetValue() == 1	
+		akActor.addperk(Perk_Active)
 	endIf
 	
-	if akActor == Game.GetPlayer()
-		while Equipped
-		if INVB_Global_Blood_Time_Type.GetValue() == 1
-			StartTimerGameTime(GetUpdateTime())		
-		else
-			if bool_Slow == true
-				Utility.Wait(INVB_Global_Blood_Time_modifier.getvalue() * 2)
-			else
-				Utility.Wait(INVB_Global_Blood_Time_modifier.getvalue())
+	if (!akActor.HasPerk(Perk_Spend) && INVB_Global_Spend_Toggle.GetValue() == 1) || INVB_Global_Spend_Toggle.GetValue() == 0
+		
+		if akActor == PlayerRef || INVB_Global_NPC_Workshop_Blood.GetValue() == 0
+			If akActor.wornHasKeyword(kw_HC) && Equipped && INVB_Global_Blood_Resources.GetValue() == 0
+				Do_Blood_Resources(akActor)
 			endIf
-			WaitandBlood()
+		
+			while Equipped
+				if INVB_Global_Blood_Time_Type.GetValue() == 1
+					StartTimerGameTime(GetUpdateTime())		
+				else
+					Utility.WaitGameTime(GetUpdateTime())
+					WaitandBlood()
+				endIf
+			EndWhile
 		endIf
-		EndWhile
-	endIf		
+	else
+		if INVB_Global_Notes.GetValue() == 1
+			Debug.notification(akActor.GetLeveledActorBase().GetName() +" is not producing enough")
+		endif
+		akActor.unequipitem(pArmor_Blood,true,true)
+	endIf
+		
 EndEvent
 
 
@@ -198,19 +276,19 @@ EndFunction
 
 Function WaitandBlood()
 
-	Get_Blood(Game.GetPlayer())
+	Get_Blood(target)
 	Utility.Wait(5)
 	int_Bloodcount += 1
 	
 	if int_Bloodcount < INVB_Global_Blood_Amount_Max.getvalue() && Equipped
-		If Game.GetPlayer().wornHasKeyword(kw_HC) && Equipped && INVB_Global_Blood_Resources.GetValue() == 0
-			Do_Blood_Resources(Game.GetPlayer())
+		If target.wornHasKeyword(kw_HC) && Equipped && INVB_Global_Blood_Resources.GetValue() == 0
+			Do_Blood_Resources(target)
 		endIf
 		StartTimerGameTime(GetUpdateTime())
 	elseif int_Bloodcount >= INVB_Global_Blood_Amount_Max.getvalue() && Equipped
-		Game.GetPlayer().unequipitem(pArmor_Blood, true, true)
+		target.unequipitem(pArmor_Blood, true, true)
 		if INVB_Global_Notes.GetValue() == 1
-			debug.notification(Game.GetPlayer().GetLeveledActorBase().GetName() +" is running dry")	
+			debug.notification(target.GetLeveledActorBase().GetName() +" is running dry")	
 		endif
 	endIf	
 EndFunction
@@ -218,19 +296,19 @@ EndFunction
 Event OnTimerGameTime(int aiTID)
 ;	Debug.Trace("Do_Feeding_Cycle Trigger")
 	
-	Get_Blood(Game.GetPlayer())
+	Get_Blood(target)
 	Utility.Wait(5)
 	int_Bloodcount += 1
 	
 	if int_Bloodcount < INVB_Global_Blood_Amount_Max.getvalue() && Equipped
-		If Game.GetPlayer().wornHasKeyword(kw_HC) && Equipped && INVB_Global_Blood_Resources.GetValue() == 0
-			Do_Blood_Resources(Game.GetPlayer())
+		If target.wornHasKeyword(kw_HC) && Equipped && INVB_Global_Blood_Resources.GetValue() == 0
+			Do_Blood_Resources(target)
 		endIf
 		StartTimerGameTime(GetUpdateTime())
 	elseif int_Bloodcount >= INVB_Global_Blood_Amount_Max.getvalue() && Equipped
-		Game.GetPlayer().unequipitem(pArmor_Blood, true, true)
+		target.unequipitem(pArmor_Blood, true, true)
 		if INVB_Global_Notes.GetValue() == 1
-			debug.notification(Game.GetPlayer().GetLeveledActorBase().GetName() +" is running dry")	
+			debug.notification(target.GetLeveledActorBase().GetName() +" is running dry")	
 		endif
 	endIf	
 EndEvent
@@ -239,11 +317,22 @@ EndEvent
 Event OnUnequipped(Actor akActor)
     Equipped = False
 	Float RadLevel = akActor.GetValue(Rads) as float
-	if INVB_Global_Overlay_Boolean.GetValue() == 1 && int_Bloodcount > 0
-		If RadLevel > INVB_Global_Rads_Blood.GetValue()
-			SP_BloodOverlay_Green.Cast(akActor, akActor)
-		else
-			SP_BloodOverlay.Cast(akActor, akActor)
-		endIf	
+	
+	if akActor.HasPerk(Perk_Active)	
+		akActor.removeperk(Perk_Active)
 	endIf
+	
+	if int_Bloodcount >= 1
+		if INVB_Global_Spend_Toggle.GetValue() == 1	
+			akActor.equipitem(Aid_Spend, false, true)
+		endIf
+		
+		if INVB_Global_Overlay_Boolean.GetValue() == 1
+			If RadLevel > INVB_Global_Rads_Blood.GetValue()
+				SP_BloodOverlay_Green.Cast(akActor, akActor)
+			else
+				SP_BloodOverlay.Cast(akActor, akActor)
+			endIf	
+		endIf
+	endIf	
 EndEvent

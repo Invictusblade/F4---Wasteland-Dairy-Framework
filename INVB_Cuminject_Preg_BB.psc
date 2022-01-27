@@ -5,7 +5,8 @@ Actor property PlayerRef Auto Const Mandatory
 Keyword Property kw_Morph Auto
 Keyword Property kw_noPreg Auto
 GlobalVariable property INVB_Global_Power Auto Const Mandatory
-GlobalVariable property INVB_Global_BodyType Auto Const Mandatory
+GlobalVariable property INVB_Global_BodyType_CBBE Auto Const Mandatory
+GlobalVariable property INVB_Global_BodyType_FG Auto Const Mandatory
 GlobalVariable property INVB_Global_AllowedMales Auto Const Mandatory
 
 Float Property OriginalThin Auto 
@@ -27,11 +28,11 @@ Event OnEquipped(Actor akActor)
 		float power = (Utility.RandomFloat(5, 9) * INVB_Global_Power.getValue() * 0.015 * Utility.RandomFloat(0.8, 1.2))
 		float maxMorphValue = INVB_Global_Power.getValue() / 5.0
 		
-		If (INVB_Global_BodyType.GetValue() == 0) ; CBBE Original
+		If (INVB_Global_BodyType_CBBE.GetValue() == 0) ; CBBE Original
 			BodyGen.SetMorph(Ourself, true, "PregnancyBelly", kw_Morph, power + OrigValue("PregnancyBelly"))
 			BodyGen.SetMorph(Ourself, true, "DoubleMelon", kw_Morph, (power/2) + OrigValue("DoubleMelon"))
 			BodyGen.SetMorph(Ourself, true, "BigButt", kw_Morph, (power/2) + OrigValue("BigButt"))
-		ElseIf (INVB_Global_BodyType.GetValue() == 1) ; CBBE Redux
+		ElseIf (INVB_Global_BodyType_CBBE.GetValue() == 1) ; CBBE Redux
             BodyGen.SetMorph(Ourself, true, "Breasts", kw_Morph, power*0.9 + OrigValue("Breasts"))
             BodyGen.SetMorph(Ourself, true, "BreastsNewSH", kw_Morph, power*0.2 + OrigValue("BreastsNewSH"))
             BodyGen.SetMorph(Ourself, true, "BreastFantasy", kw_Morph, power*0.25 + OrigValue("BreastFantasy"))
@@ -47,7 +48,8 @@ Event OnEquipped(Actor akActor)
             BodyGen.SetMorph(Ourself, true, "ButtSmall", kw_Morph, power*-0.4 + OrigValue("ButtSmall"))
             BodyGen.SetMorph(Ourself, true, "BreastHeight", kw_Morph, power*0.55 + OrigValue("BreastHeight"))
             BodyGen.SetMorph(Ourself, true, "BreastGravity2", kw_Morph, power*-0.5 + OrigValue("BreastGravity2")) 
-		ElseIf (INVB_Global_BodyType.GetValue() == 2) ; Fusion Girl Original
+		endif
+		If (INVB_Global_BodyType_FG.GetValue() == 0) ; Fusion Girl Original
 			BodyGen.SetMorph(Ourself, true, "Belly Pregnant", kw_Morph, power + OrigValue("Belly Pregnant"))
 			BodyGen.SetMorph(Ourself, true, "Boobs Yuge", kw_Morph, (power/2) + OrigValue("Boobs Yuge"))
 			BodyGen.SetMorph(Ourself, true, "Bum Chubby", kw_Morph, Math.Min((power/2) + OrigValue("Bum Chubby"), maxMorphValue))
@@ -60,7 +62,7 @@ Event OnEquipped(Actor akActor)
 			BodyGen.SetMorph(Ourself, true, "Hips Size", kw_Morph, Math.Min((power/2) + OrigValue("Hips Size"), maxMorphValue))
 			BodyGen.SetMorph(Ourself, true, "Legs Chubby", kw_Morph, Math.Min((power/2) + OrigValue("Legs Chubby"), maxMorphValue))
 			BodyGen.SetMorph(Ourself, true, "Arms Chubby", kw_Morph, Math.Min((power/2) + OrigValue("Arms Chubby"), maxMorphValue))	
-		ElseIf (INVB_Global_BodyType.GetValue() == 3) ; Fusion Girl Redux
+		ElseIf (INVB_Global_BodyType_FG.GetValue() == 1) ; Fusion Girl Redux
 			bodygen.SetMorph(Ourself, True, "Belly Pregnant", kw_Morph, power + Self.OrigValue("Belly Pregnant"))
 			bodygen.SetMorph(Ourself, True, "Boobs Yuge", kw_Morph, power / 2 as float + Self.OrigValue("Boobs Yuge"))
 			bodygen.SetMorph(Ourself, True, "Boobs Tiny", kw_Morph, power / (-4) as float + Self.OrigValue("Boobs Tiny"))
@@ -75,7 +77,8 @@ Event OnEquipped(Actor akActor)
 			BodyGen.SetMorph(Ourself, true, "Hips Size", kw_Morph, Math.Min((power/4) + OrigValue("Hips Size"), maxMorphValue))
 			BodyGen.SetMorph(Ourself, true, "Legs Chubby", kw_Morph, Math.Min((power/4) + OrigValue("Legs Chubby"), maxMorphValue))
 			BodyGen.SetMorph(Ourself, true, "Arms Chubby", kw_Morph, Math.Min((power/4) + OrigValue("Arms Chubby"), maxMorphValue))	
-		Else ; JaneBod
+		EndIf
+		; JaneBod
 			BodyGen.SetMorph(Ourself, true, "BreastsNaturalTypeSeven", kw_Morph, (power/2) + OrigValue("BreastsNaturalTypeSeven"))
 			BodyGen.SetMorph(Ourself, true, "BreastSize",kw_Morph, (power/2) + OrigValue("BreastSize"))
 			BodyGen.SetMorph(Ourself, true, "NippleShapeLargerSeven", kw_Morph, (power/2) + OrigValue("NippleShapeLargerSeven"))
@@ -89,7 +92,7 @@ Event OnEquipped(Actor akActor)
 			BodyGen.SetMorph(Ourself, true, "ThighSize", kw_Morph, (power/2) + OrigValue("ThighSize"))
 			BodyGen.SetMorph(Ourself, true, "UpperArmSize", kw_Morph, (power/2) + OrigValue("UpperArmSize"))
 			BodyGen.SetMorph(Ourself, true, "Pregnant", kw_Morph, (power) + OrigValue("Pregnant"))
-		EndIf
+
 			BodyGen.SetMorph(Ourself, false, "Mpreg", kw_Morph, power)
 			BodyGen.UpdateMorphs(Ourself)
 	endif
@@ -133,12 +136,10 @@ Event OnUnequipped(Actor akActor)
 			Ourself.unequipitem(pArmor_Projector)
 		else
 		BabyBump_bool = false
-		If (INVB_Global_BodyType.GetValue() == 0) ; CBBE Original
 			BodyGen.SetMorph(Ourself, true, "PregnancyBelly", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "DoubleMelon", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "BigButt", kw_Morph, 0)
-		ElseIf (INVB_Global_BodyType.GetValue() == 1) ; CBBE Redux
-            BodyGen.SetMorph(Ourself, true, "Breasts", kw_Morph, 0)
+		    BodyGen.SetMorph(Ourself, true, "Breasts", kw_Morph, 0)
             BodyGen.SetMorph(Ourself, true, "BreastsNewSH", kw_Morph, 0)
             BodyGen.SetMorph(Ourself, true, "BreastFantasy", kw_Morph, 0)
             BodyGen.SetMorph(Ourself, true, "NippleLength", kw_Morph, 0)
@@ -153,7 +154,6 @@ Event OnUnequipped(Actor akActor)
             BodyGen.SetMorph(Ourself, true, "ButtSmall", kw_Morph, 0)
             BodyGen.SetMorph(Ourself, true, "BreastHeight", kw_Morph, 0)
             BodyGen.SetMorph(Ourself, true, "BreastGravity2", kw_Morph, 0)
-		ElseIf (INVB_Global_BodyType.GetValue() == 2) ; Fusion Girl Original
 			BodyGen.SetMorph(Ourself, true, "Belly Pregnant", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "Boobs Yuge", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "Bum Chubby", kw_Morph, 0)
@@ -166,7 +166,6 @@ Event OnUnequipped(Actor akActor)
 			BodyGen.SetMorph(Ourself, true, "Hips Size", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "Legs Chubby", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "Arms Chubby", kw_Morph, 0)
-		ElseIf (INVB_Global_BodyType.GetValue() == 3) ; Fusion Girl Redux
 			bodygen.SetMorph(Ourself, True, "Belly Pregnant", kw_Morph, 0)
 			bodygen.SetMorph(Ourself, True, "Boobs Yuge", kw_Morph, 0)
 			bodygen.SetMorph(Ourself, True, "Boobs Tiny", kw_Morph, 0)
@@ -181,7 +180,6 @@ Event OnUnequipped(Actor akActor)
 			bodygen.SetMorph(Ourself, True, "Hips Size", kw_Morph, 0)
 			bodygen.SetMorph(Ourself, True, "Legs Chubby", kw_Morph, 0)
 			bodygen.SetMorph(Ourself, True, "Arms Chubby", kw_Morph, 0)
-		Else ; JaneBod
 			BodyGen.SetMorph(Ourself, true, "BreastsNaturalTypeSeven", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "BreastSize",kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "NippleShapeLargerSeven", kw_Morph, 0)
@@ -195,7 +193,6 @@ Event OnUnequipped(Actor akActor)
 			BodyGen.SetMorph(Ourself, true, "ThighSize", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "UpperArmSize", kw_Morph, 0)
 			BodyGen.SetMorph(Ourself, true, "Pregnant", kw_Morph, 0)
-		EndIf
 			BodyGen.SetMorph(Ourself, false, "Mpreg", kw_Morph, 0)
 			BodyGen.UpdateMorphs(Ourself)
 		EndIf

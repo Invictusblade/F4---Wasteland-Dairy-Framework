@@ -18,6 +18,7 @@ bool Property bool_unequipable Auto
 bool Property bool_SkinOverride Auto
 bool Property bool_MalesAllowed Auto
 
+
 state Action
 	Event OnEquipped(Actor akActor)
 		; ignore it
@@ -34,7 +35,7 @@ EndEvent
 
 
 Event OnEquipped(Actor akActor)
-	float random_time = Utility.Randomfloat(0.1, 15.5)
+	float random_time = Utility.Randomfloat(0.1, 5.5)
 	Utility.Wait(random_time)
 
 	int random_LList = Utility.RandomInt(1, 100)
@@ -49,6 +50,11 @@ Event OnEquipped(Actor akActor)
 		akActor.removeitem(pArmor_Overlay)
 	endif
 	
+	GlobalVariable Debug_DeleteTattoo = Game.GetFormFromFile(0x005252, "INVB_OverlayFramework.esp") as GlobalVariable
+	if bool_unequipable == true && Debug_DeleteTattoo.GetValue() == 1
+		Utility.Wait(random_time)
+		akActor.removeitem(pArmor_Overlay)
+	endif
 		
 EndEvent
 

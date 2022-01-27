@@ -145,7 +145,6 @@ Function Body_Morph()
 			BodyGen.SetMorph(Ourself, true, "ThighSize", kw_Morph, (power/2) + OrigValue("ThighSize"))
 			BodyGen.SetMorph(Ourself, true, "UpperArmSize", kw_Morph, (power/2) + OrigValue("UpperArmSize"))
 			BodyGen.SetMorph(Ourself, true, "Pregnant", kw_Morph, (power) + OrigValue("Pregnant"))
-		EndIf
 		BodyGen.UpdateMorphs(Ourself)
 EndFunction
 

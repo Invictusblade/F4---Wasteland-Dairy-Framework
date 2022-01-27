@@ -72,6 +72,7 @@ GlobalVariable property INVB_Global_OverlayChance_DLC04_Disciples_Choice_Hair Au
 GlobalVariable property INVB_Global_OverlayChance_DLC04_Slaves_Choice_Hair Auto Mandatory
 
 
+GlobalVariable property INVB_Global_Debug_DeleteTattoo Auto Const Mandatory
 EndGroup
 String ThisMod = "INVB_OverlayFramework"
 
@@ -169,6 +170,8 @@ Function UpdateSettings(bool firstLoad = false)
 	LoadSetting(INVB_Global_OverlayChance_DLC04_Operators_Choice_Hair, "fOverlay_DLC04_Operators_Hair:Overlay", 0.0, 1.0)
 	LoadSetting(INVB_Global_OverlayChance_DLC04_Disciples_Choice_Hair, "fOverlay_DLC04_Disciples_Hair:Overlay", 0.0, 1.0)
 	LoadSetting(INVB_Global_OverlayChance_DLC04_Slaves_Choice_Hair, "fOverlay_DLC04_Slaves_Hair:Overlay", 0.0, 1.0)	
+	
+	LoadSetting(INVB_Global_Debug_DeleteTattoo, "fOverlay_Debug_DeleteTattoo:Misc", 0.0, 1.0)	
 EndFunction
 
 Function LoadSetting(GlobalVariable akGlobal, string asSetting, float afMin, float afMax)

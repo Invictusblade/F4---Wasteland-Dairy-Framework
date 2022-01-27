@@ -15,6 +15,7 @@ GlobalVariable property INVB_Global_Milking_Amount_1 Auto Const Mandatory
 GlobalVariable property INVB_Global_Milking_Amount_2 Auto Const Mandatory
 GlobalVariable property INVB_Global_Milking_Virus_Mod Auto Const Mandatory
 GlobalVariable property INVB_Global_Milking_Virus_Morph Auto Const Mandatory
+GlobalVariable property INVB_Global_Notes Auto Const Mandatory
 Potion Property Milk_Breast Auto Const
 Potion Property Milk_Rads Auto Const
 Race Property GhoulRace Auto Const Mandatory 
@@ -29,38 +30,122 @@ GlobalVariable property INVB_Global_Gender_Roles Auto Const Mandatory
 bool Property Milk Auto Const
 Bool Property bool_Slow Auto
 
-Event OnEquipped(Actor akActor)
+SPELL Property SP_MilkOverlay Auto
+SPELL Property SP_MilkOverlay_Green Auto
+GlobalVariable property INVB_Global_Overlay_Boolean Auto Const Mandatory
+GlobalVariable property INVB_Global_NPC_Workshop Auto Const Mandatory
+GlobalVariable property INVB_Global_Gift_GameHours Auto Mandatory
+GlobalVariable property INVB_Global_Milking_Time_Type Auto Const Mandatory
 
+GlobalVariable property INVB_Global_Spend_Toggle Auto Const Mandatory
+Potion Property Aid_Spend Auto Const
+Perk Property Perk_Spend Auto
+Perk Property Perk_Active Auto
+int int_milkcount
+GlobalVariable property INVB_Global_Milking_Amount_Max Auto Const Mandatory
+Armor Property pArmor_Milker Auto Const Mandatory
+GlobalVariable property INVB_Global_Workshop_Gifter Auto Const Mandatory
+Actor Property PlayerRef Auto Const
+
+Bool Equipped = False
+
+Event OnEquipped(Actor akActor)
+	int_milkcount = 0
+	Equipped = True
 	target = akActor
-	
-	if Milk == true
-		if INVB_Global_Gender_Roles.GetValue() == 0 && akActor != Game.GetPlayer() ; Enforced
-			If akActor.GetLeveledActorBase().GetSex() == 1
-				If INVB_Global_Lactation.GetValue() >= 1 && akActor != Game.GetPlayer()
-					RegisterForCustomEvent(varTrigger, "TriggerCollection")
-				elseif akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() >= 0
-					RegisterForCustomEvent(varTrigger, "TriggerCollection")
-				else
+	if INVB_Global_NPC_Workshop.GetValue() == 1 && akActor != PlayerRef
+		if Milk == true
+			if INVB_Global_Gender_Roles.GetValue() == 0 ; Enforced
+				If akActor.GetLeveledActorBase().GetSex() == 1
+					If INVB_Global_Lactation.GetValue() >= 1
+						Do_Milk_Timer(akActor)
+					elseif akActor.HasPerk(Perk_Lactation) && INVB_Global_Lactation.GetValue() >= 0
+						Do_Milk_Timer(akActor)
+					else
+						akActor.unequipitem(self,true,true)
+					endif
+				elseIf akActor.GetLeveledActorBase().GetSex() == 0
 					akActor.unequipitem(self,true,true)
 				endif
-			elseIf akActor.GetLeveledActorBase().GetSex() == 0
-				akActor.unequipitem(self,true,true)
+			elseif INVB_Global_Gender_Roles.GetValue() == 1 ; Disable
+				Do_Milk_Timer(akActor)
 			endif
-		elseif INVB_Global_Gender_Roles.GetValue() == 1 && akActor != Game.GetPlayer() ; Disable
-			RegisterForCustomEvent(varTrigger, "TriggerCollection")
-		endif
-	else
-		if INVB_Global_Gender_Roles.GetValue() == 0 && akActor != Game.GetPlayer() ; Enforced
-			if akActor.GetLeveledActorBase().GetSex() == 0 && akActor != Game.GetPlayer()
-				RegisterForCustomEvent(varTrigger, "TriggerCollection")
-			elseIf akActor.GetLeveledActorBase().GetSex() == 1 && akActor != Game.GetPlayer()
-				akActor.unequipitem(self,true,true)
+		else
+			if INVB_Global_Gender_Roles.GetValue() == 0 ; Enforced
+				if akActor.GetLeveledActorBase().GetSex() == 0
+					Do_Milk_Timer(akActor)
+				elseIf akActor.GetLeveledActorBase().GetSex() == 1
+					akActor.unequipitem(self,true,true)
+				endif
+			elseif INVB_Global_Gender_Roles.GetValue() == 1 ; Disable
+				Do_Milk_Timer(akActor)
 			endif
-		elseif INVB_Global_Gender_Roles.GetValue() == 1 && akActor != Game.GetPlayer() ; Disable
-			RegisterForCustomEvent(varTrigger, "TriggerCollection")
 		endif
 	endif
 EndEvent
+
+Event OnUnequipped(Actor akActor)
+    Equipped = False
+	Float RadLevel = akActor.GetValue(Rads) as float
+	
+	if akActor.HasPerk(Perk_Active)	
+		akActor.removeperk(Perk_Active)
+	endIf
+	
+	if int_milkcount >= 1
+		if INVB_Global_Spend_Toggle.GetValue() == 1	
+			akActor.equipitem(Aid_Spend, false, true)
+		endIf
+		
+		if INVB_Global_Overlay_Boolean.GetValue() == 1
+			If RadLevel > INVB_Global_Rads.GetValue()
+				SP_MilkOverlay_Green.Cast(akActor, akActor)
+			else
+				SP_MilkOverlay.Cast(akActor, akActor)
+			endIf	
+		endIf
+	endIf	
+EndEvent
+
+Function Do_Milk_Timer(Actor akActor)
+	if INVB_Global_Milking_Time_Type.GetValue() == 1
+		if int_milkcount < INVB_Global_Milking_Amount_Max.getvalue() && Equipped
+			RegisterForCustomEvent(varTrigger, "TriggerCollection")
+		elseif int_milkcount >= INVB_Global_Milking_Amount_Max.getvalue() && Equipped
+			akActor.unequipitem(pArmor_Milker, true, true)
+			if INVB_Global_Notes.GetValue() == 1
+				debug.notification(akActor.GetLeveledActorBase().GetName() +" has been Milked Out")	
+			endif
+		endIf
+	else
+		if int_milkcount < INVB_Global_Milking_Amount_Max.getvalue() && Equipped
+			Utility.WaitGameTime(GetUpdateTime())
+			Get_Milk(akActor)
+			Do_Milk_Morphs(akActor)
+			Do_Milk_Timer(akActor)
+		elseif int_milkcount >= INVB_Global_Milking_Amount_Max.getvalue() && Equipped
+			akActor.unequipitem(pArmor_Milker, true, true)
+			if INVB_Global_Notes.GetValue() == 1
+				debug.notification(akActor.GetLeveledActorBase().GetName() +" has been Milked Out")	
+			endif
+		endIf
+	endIf
+	
+EndFunction
+
+Float Function GetUpdateTime()
+	float time_milking = INVB_Global_Gift_GameHours.getvalue()
+	
+	if bool_Slow == true
+		time_milking = time_milking * 2
+	endIf
+	
+	If time_milking > 0
+		return time_milking
+	Else
+		return 24.0
+	EndIf
+EndFunction
 
 Event INVB_QuestScript.TriggerCollection(INVB_QuestScript varSender, Var[] varArgs)
 	if canproduceforworkshop() == true
@@ -75,6 +160,9 @@ Function Get_Milk(Actor akActor)
 	Float RadLevel = akActor.GetValue(Rads) as float
 	int GiftAmount = INVB_Global_Gift_Amount.getvalue() as int
 	
+	
+	int_milkcount += 1
+		
 	if bool_Slow == true && GiftAmount > 1
 		GiftAmount = GiftAmount / 2
 	endIf	
@@ -87,6 +175,37 @@ Function Get_Milk(Actor akActor)
 		GiftAmount = GiftAmount * (1 * INVB_Global_Milking_Virus_Mod.getvalue() as int)
 	endIf	
 		
+	if INVB_Global_Workshop_Gifter.GetValue() == 1
+		If akActor.GetDistance(PlayerRef) > 1024.000
+			If akActor.GetLeveledActorBase().GetRace() == GhoulRace
+				PlayerRef.additem(Milk_Rads, GiftAmount, true)
+			elseIf akActor.GetLeveledActorBase().GetRace() == SynthGen1Race
+				PlayerRef.additem(Milk_Synth, GiftAmount, true)
+			elseIf akActor.GetLeveledActorBase().GetRace() == SynthGen2Race
+				PlayerRef.additem(Milk_Synth, GiftAmount, true)
+			elseIf akActor.GetLeveledActorBase().GetRace() == SynthGen2RaceValentine
+				PlayerRef.additem(Milk_Synth, GiftAmount, true)
+			elseIF (RadLevel > INVB_Global_Rads.GetValue())
+				PlayerRef.additem(Milk_Rads, GiftAmount, true)
+			Else
+				PlayerRef.additem(Milk_Breast, GiftAmount, true)
+			Endif
+		else
+			If akActor.GetLeveledActorBase().GetRace() == GhoulRace
+				akActor.additem(Milk_Rads, GiftAmount, true)
+			elseIf akActor.GetLeveledActorBase().GetRace() == SynthGen1Race
+				akActor.additem(Milk_Synth, GiftAmount, true)
+			elseIf akActor.GetLeveledActorBase().GetRace() == SynthGen2Race
+				akActor.additem(Milk_Synth, GiftAmount, true)
+			elseIf akActor.GetLeveledActorBase().GetRace() == SynthGen2RaceValentine
+				akActor.additem(Milk_Synth, GiftAmount, true)
+			elseIF (RadLevel > INVB_Global_Rads.GetValue())
+				akActor.additem(Milk_Rads, GiftAmount, true)
+			Else
+				akActor.additem(Milk_Breast, GiftAmount, true)
+			Endif
+		endif
+	else
 		If akActor.GetLeveledActorBase().GetRace() == GhoulRace
 			akActor.additem(Milk_Rads, GiftAmount, true)
 		elseIf akActor.GetLeveledActorBase().GetRace() == SynthGen1Race
@@ -100,6 +219,8 @@ Function Get_Milk(Actor akActor)
 		Else
 			akActor.additem(Milk_Breast, GiftAmount, true)
 		Endif
+	endif		
+	
 EndFunction
 
 

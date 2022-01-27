@@ -16,6 +16,7 @@ bool Property bool_unequipable Auto
 bool Property bool_SkinOverride Auto
 bool Property bool_MalesAllowed Auto
 
+
 state Action
 	Event OnEquipped(Actor akActor)
 		; ignore it
@@ -98,6 +99,14 @@ Event OnEquipped(Actor akActor)
 	else
 	
 	endif	
+	
+	
+	GlobalVariable Debug_DeleteTattoo = Game.GetFormFromFile(0x005252, "INVB_OverlayFramework.esp") as GlobalVariable
+	if bool_unequipable == true && Debug_DeleteTattoo.GetValue() == 1
+		Utility.Wait(5)
+		akActor.removeitem(self, 1)
+	endif
+	
 EndEvent
 
 Event OnUnequipped(Actor akActor)
